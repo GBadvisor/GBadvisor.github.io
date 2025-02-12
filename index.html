@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Hold'em Leaderboard</title>
+    <title>ASOP SNG Leaderboard</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,14 +14,12 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            /*  Remove the SVG background and replace with image */
-            background-image: url('poker_background.jpg'); /*  Replace with your image path */
-            background-size: cover; /*  Ensure the image covers the entire background */
-            background-position: center; /* Center the background image */
-            background-repeat: no-repeat; /* Prevent image repetition */
+            background-image: url('poker_background.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
-        /* Rest of the CSS remains the same (from the previous blue theme example) */
         #leaderboard {
             width: 80%;
             max-width: 700px;
@@ -32,18 +30,50 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             padding: 30px;
             border: 2px solid #60a5fa;
+            text-align: center;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 30px;
             font-size: 2.5em;
             color: #60a5fa;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
         }
-       table {
+
+        .description {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #c7d2fe;
+            line-height: 1.5;
+        }
+
+        /* Tab Styling */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #60a5fa;
+            border: 1px solid #60a5fa;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0; /* Rounded top corners */
+            margin: 0 2px; /* Spacing between tabs */
+        }
+
+        .tab.active {
+            background-color: rgba(96, 165, 250, 0.3);
+            color: #fff;
+        }
+
+        /* Table Styling (Remains mostly the same) */
+        table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 15px;
         }
 
         th, td {
@@ -73,12 +103,32 @@
         td:first-child {
             text-align: center;
         }
+
+        /* Hide tables by default */
+        #score-table, #popularity-table {
+            display: none;
+        }
+
+        #score-table.active-table, #popularity-table.active-table {
+            display: table; /* Only show the active table */
+        }
     </style>
 </head>
 <body>
     <div id="leaderboard">
-        <h1>ASOP SNG 总成绩排名</h1>
-        <table>
+        <h1>ASOP SNG 争霸榜</h1>
+        <p class="description">
+            第一名5分 第二名3分 第三名2分 </br>
+            低买入比赛按奖金比例折扣积分 </br>
+            总成绩为选手比赛成绩，抽奖分数用于选取玩家参加freeroll
+        </p>
+
+        <div class="tab-container">
+            <div class="tab active" data-tab="score-table">总成绩</div>
+            <div class="tab" data-tab="popularity-table">抽奖分数</div>
+        </div>
+
+        <table id="score-table" class="active-table">
             <thead>
                 <tr>
                     <th>Rank</th>
@@ -86,14 +136,25 @@
                     <th>Score</th>
                 </tr>
             </thead>
-            <tbody id="leaderboard-body">
+            <tbody id="score-table-body">
+                </tbody>
+        </table>
+
+        <table id="popularity-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Votes</th>
+                </tr>
+            </thead>
+            <tbody id="popularity-table-body">
                 </tbody>
         </table>
     </div>
 
     <script>
-      // (JavaScript code - same as in previous examples)
-      const leaderboardData = [
+        const scoreData = [
             { name: "Yue Du", score: 6 },
             { name: "Chang Luo", score: 7 },
             { name: "Chang Liu", score: 0 },
@@ -119,35 +180,85 @@
             { name: "William Dai", score: 2 }
         ];
 
-        leaderboardData.sort((a, b) => b.score - a.score);
-        const leaderboardBody = document.getElementById("leaderboard-body");
+        // Sample popularity data (You'll need to populate this)
+        const popularityData = [
+            { name: "Yue Du", votes: 9 },
+            { name: "Chang Luo", votes: 10 },
+            { name: "Chang Liu", votes: 3 },
+            { name: "Alan Wang", votes: 1 },
+            { name: "Jack Min", votes: 17 },
+             { name: "Alex Zhang", votes: 13 },
+            { name: "Daniel Meng", votes: 18 },
+            { name: "Jay Zhou", votes: 1 },
+            { name: "Bin Duan", votes: 19 },
+            { name: "Leo Zhu", votes: 9 },
+            { name: "Jade", votes: 7 },
+            { name: "Jun Yuan", votes: 8 },
+            { name: "Marvin", votes: 8 },
+            { name: "CHY", votes: 2 },
+            { name: "John Yu", votes: 9 },
+            { name: "Fred", votes: 6 },
+            { name: "Zhao", votes: 3 },
+            { name: "Tao", votes: 3 },
+            { name: "Xie", votes: 2 },
+            { name: "Benson", votes: 5 },
+            { name: "Nathan", votes: 1 },
+            { name: "Eva Huang", votes: 2 },
+            { name: "William Dai", votes: 2 }
+        ];
 
-        function generateLeaderboardRows() {
-            leaderboardBody.innerHTML = "";
-            for (let i = 0; i < leaderboardData.length; i++) {
+        scoreData.sort((a, b) => b.score - a.score);
+        popularityData.sort((a,b) => b.votes - a.votes);
+
+        const scoreTableBody = document.getElementById("score-table-body");
+        const popularityTableBody = document.getElementById("popularity-table-body");
+
+        function generateTableRows(data, tbody, scoreOrVotes) {
+            tbody.innerHTML = "";
+            for (let i = 0; i < data.length; i++) {
                 const row = document.createElement("tr");
                 const rankCell = document.createElement("td");
                 const nameCell = document.createElement("td");
-                const scoreCell = document.createElement("td");
+                const valueCell = document.createElement("td"); // Use a generic name
 
                 rankCell.textContent = i + 1;
-                nameCell.textContent = leaderboardData[i].name;
-                scoreCell.textContent = leaderboardData[i].score;
+                nameCell.textContent = data[i].name;
+                valueCell.textContent = data[i][scoreOrVotes]; // Access score or votes
 
-                if (i < 3) {
-                   row.classList.add("top-rank");
+                if (i < 10) {
+                    row.classList.add("top-rank");
                     if(i === 0) rankCell.classList.add("rank-1");
                     if(i === 1) rankCell.classList.add("rank-2");
                     if(i === 2) rankCell.classList.add("rank-3");
                 }
+
                 row.appendChild(rankCell);
                 row.appendChild(nameCell);
-                row.appendChild(scoreCell);
-
-                leaderboardBody.appendChild(row);
+                row.appendChild(valueCell);
+                tbody.appendChild(row);
             }
         }
-        generateLeaderboardRows();
+        // Initial table generation
+        generateTableRows(scoreData, scoreTableBody, "score");
+        generateTableRows(popularityData, popularityTableBody, "votes");
+
+        // Tab switching logic
+        const tabs = document.querySelectorAll(".tab");
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // Remove active class from all tabs and tables
+                tabs.forEach(t => t.classList.remove("active"));
+                document.querySelectorAll("table").forEach(table => table.classList.remove("active-table"));
+
+                // Add active class to the clicked tab
+                tab.classList.add("active");
+
+                // Show the corresponding table
+                const tabId = tab.dataset.tab;
+                document.getElementById(tabId).classList.add("active-table");
+            });
+        });
+
     </script>
 </body>
 </html>
