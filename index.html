@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texas Hold'em Leaderboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e3a8a;
+            color: #e0e7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /*  Remove the SVG background and replace with image */
+            background-image: url('poker_background.jpg'); /*  Replace with your image path */
+            background-size: cover; /*  Ensure the image covers the entire background */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* Prevent image repetition */
+        }
+
+        /* Rest of the CSS remains the same (from the previous blue theme example) */
+        #leaderboard {
+            width: 80%;
+            max-width: 700px;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border: 2px solid #60a5fa;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            color: #60a5fa;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+       table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.15);
+            color: #60a5fa;
+            font-weight: bold;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .top-rank {
+            background-color: rgba(96, 165, 250, 0.3);
+        }
+
+        .rank-1 { color: #FFD700; font-weight: bold; }
+        .rank-2 { color: #C0C0C0; font-weight: bold; }
+        .rank-3 { color: #8c6a54; font-weight: bold; }
+
+        td:first-child {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="leaderboard">
+        <h1>ASOP SNG 总成绩排名</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+      // (JavaScript code - same as in previous examples)
+      const leaderboardData = [
+            { name: "Yue Du", score: 6 },
+            { name: "Chang Luo", score: 7 },
+            { name: "Chang Liu", score: 0 },
+            { name: "Alan Wang", score: 0 },
+            { name: "Jack Min", score: 7 },
+            { name: "Alex Zhang", score: 5 },
+            { name: "Daniel Meng", score: 5 },
+            { name: "Jay Zhou", score: 0 },
+            { name: "Bin Duan", score: 5 },
+            { name: "Leo Zhu", score: 2 },
+            { name: "Jade", score: 2 },
+            { name: "Jun Yuan", score: 5 },
+            { name: "Marvin", score: 3 },
+            { name: "CHY", score: 0 },
+            { name: "John Yu", score: 8 },
+            { name: "Fred", score: 0 },
+            { name: "Zhao", score: 0 },
+            { name: "Tao", score: 0 },
+            { name: "Xie", score: 0 },
+            { name: "Benson", score: 3 },
+            { name: "Nathan", score: 0 },
+            { name: "Eva Huang", score: 0 },
+            { name: "William Dai", score: 2 }
+        ];
+
+        leaderboardData.sort((a, b) => b.score - a.score);
+        const leaderboardBody = document.getElementById("leaderboard-body");
+
+        function generateLeaderboardRows() {
+            leaderboardBody.innerHTML = "";
+            for (let i = 0; i < leaderboardData.length; i++) {
+                const row = document.createElement("tr");
+                const rankCell = document.createElement("td");
+                const nameCell = document.createElement("td");
+                const scoreCell = document.createElement("td");
+
+                rankCell.textContent = i + 1;
+                nameCell.textContent = leaderboardData[i].name;
+                scoreCell.textContent = leaderboardData[i].score;
+
+                if (i < 3) {
+                   row.classList.add("top-rank");
+                    if(i === 0) rankCell.classList.add("rank-1");
+                    if(i === 1) rankCell.classList.add("rank-2");
+                    if(i === 2) rankCell.classList.add("rank-3");
+                }
+                row.appendChild(rankCell);
+                row.appendChild(nameCell);
+                row.appendChild(scoreCell);
+
+                leaderboardBody.appendChild(row);
+            }
+        }
+        generateLeaderboardRows();
+    </script>
+</body>
+</html>
