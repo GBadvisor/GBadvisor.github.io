@@ -60,8 +60,8 @@
             color: #60a5fa;
             border: 1px solid #60a5fa;
             cursor: pointer;
-            border-radius: 5px 5px 0 0; /* Rounded top corners */
-            margin: 0 2px; /* Spacing between tabs */
+            border-radius: 5px 5px 0 0;
+            margin: 0 2px;
         }
 
         .tab.active {
@@ -69,7 +69,7 @@
             color: #fff;
         }
 
-        /* Table Styling (Remains mostly the same) */
+        /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -78,7 +78,7 @@
 
         th, td {
             padding: 12px 15px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
 
@@ -100,17 +100,54 @@
         .rank-2 { color: #C0C0C0; font-weight: bold; }
         .rank-3 { color: #8c6a54; font-weight: bold; }
 
-        td:first-child {
-            text-align: center;
-        }
 
         /* Hide tables by default */
-        #score-table, #popularity-table {
+        #score-table, #popularity-table{
             display: none;
         }
 
-        #score-table.active-table, #popularity-table.active-table {
-            display: table; /* Only show the active table */
+        #score-table.active-table, #popularity-table.active-table{
+            display: table;
+        }
+
+        /* Styles for the Random Draw Section */
+        #random-draw-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        #draw-button {
+            background-color: #60a5fa;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+          #draw-button:hover{
+            background-color: #4183d7;
+        }
+
+        #draw-results {
+            font-size: 1.2em;
+            color: #FFD700;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .winners-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .winner-item {
+            background-color: rgba(96, 165, 250, 0.3);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -151,6 +188,13 @@
             <tbody id="popularity-table-body">
                 </tbody>
         </table>
+
+        <div id="random-draw-section">
+            <h2>随机抽奖</h2>
+            <button id="draw-button">抽取幸运玩家</button>
+            <div id="draw-results"></div>
+        </div>
+
     </div>
 
     <script>
@@ -180,14 +224,13 @@
             { name: "William Dai", score: 2 }
         ];
 
-        // Sample popularity data (You'll need to populate this)
         const popularityData = [
             { name: "Yue Du", votes: 9 },
             { name: "Chang Luo", votes: 10 },
             { name: "Chang Liu", votes: 3 },
             { name: "Alan Wang", votes: 1 },
             { name: "Jack Min", votes: 17 },
-             { name: "Alex Zhang", votes: 13 },
+            { name: "Alex Zhang", votes: 13 },
             { name: "Daniel Meng", votes: 18 },
             { name: "Jay Zhou", votes: 1 },
             { name: "Bin Duan", votes: 19 },
@@ -219,11 +262,11 @@
                 const row = document.createElement("tr");
                 const rankCell = document.createElement("td");
                 const nameCell = document.createElement("td");
-                const valueCell = document.createElement("td"); // Use a generic name
+                const valueCell = document.createElement("td");
 
                 rankCell.textContent = i + 1;
                 nameCell.textContent = data[i].name;
-                valueCell.textContent = data[i][scoreOrVotes]; // Access score or votes
+                valueCell.textContent = data[i][scoreOrVotes];
 
                 if (i < 10) {
                     row.classList.add("top-rank");
@@ -238,25 +281,89 @@
                 tbody.appendChild(row);
             }
         }
-        // Initial table generation
+        // --- Populate tables and set initial visibility ---
         generateTableRows(scoreData, scoreTableBody, "score");
         generateTableRows(popularityData, popularityTableBody, "votes");
+        document.getElementById("score-table").classList.add("active-table"); // Show "总成绩" on load
 
-        // Tab switching logic
+
         const tabs = document.querySelectorAll(".tab");
         tabs.forEach(tab => {
             tab.addEventListener("click", () => {
-                // Remove active class from all tabs and tables
                 tabs.forEach(t => t.classList.remove("active"));
                 document.querySelectorAll("table").forEach(table => table.classList.remove("active-table"));
 
-                // Add active class to the clicked tab
                 tab.classList.add("active");
-
-                // Show the corresponding table
                 const tabId = tab.dataset.tab;
                 document.getElementById(tabId).classList.add("active-table");
+
             });
+        });
+
+        // --- Random Draw Logic ---
+        function weightedRandomDraw(items, weights, count) {
+            const selected = [];
+            const availableItems = [...items];
+            const availableWeights = [...weights];
+
+            while (selected.length < count && availableItems.length > 0) {
+                const winnerIndex = weightedRandomIndex(availableItems, availableWeights);
+                if (winnerIndex !== -1) {
+                    selected.push(availableItems[winnerIndex]);
+                    availableItems.splice(winnerIndex, 1);
+                    availableWeights.splice(winnerIndex, 1);
+                } else {
+                    break;
+                }
+
+            }
+            return selected;
+        }
+
+        function weightedRandomIndex(items, weights) {
+            const cumulativeWeights = [];
+            let cumulativeSum = 0;
+            for (let i = 0; i < weights.length; i++) {
+                cumulativeSum += weights[i];
+                cumulativeWeights.push(cumulativeSum);
+            }
+
+            const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+            if(totalWeight <= 0) {
+                return -1;
+            }
+            const randomNumber = Math.random() * totalWeight;
+
+            for (let i = 0; i < items.length; i++) {
+                if (randomNumber < cumulativeWeights[i]) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        const drawButton = document.getElementById("draw-button");
+        const drawResultsDiv = document.getElementById("draw-results");
+
+        drawButton.addEventListener("click", () => {
+            const names = popularityData.map(item => item.name);
+            const votes = popularityData.map(item => item.votes);
+
+            const winners = weightedRandomDraw(names, votes, 9);
+              drawResultsDiv.innerHTML = ""; // Clear previous results.
+            if(winners.length > 0) {
+                const winnersList = document.createElement("div");
+                winnersList.classList.add("winners-list"); // for styling
+                winners.forEach(winner => {
+                    const winnerItem = document.createElement("div");
+                    winnerItem.textContent = winner;
+                    winnerItem.classList.add("winner-item"); // for styling
+                    winnersList.appendChild(winnerItem);
+                })
+                drawResultsDiv.appendChild(winnersList);
+            } else {
+                drawResultsDiv.textContent = "没有符合条件的玩家参与抽奖."
+            }
         });
 
     </script>
